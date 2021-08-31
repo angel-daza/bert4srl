@@ -258,7 +258,7 @@ if __name__ == "__main__":
                 # Store predictions and true labels
                 pred_labels = [index2label[p] for p in argmax_indices[ix][:seq_lengths[ix]] if p != 0]
                 gold_labels = [index2label[g] for g in label_ids[ix] if g != 0]
-                eval_metrics = utils.evaluate_tagset(gold_labels, pred_labels, ignore_verb_label=False)
+                eval_metrics = utils.evaluate_tagset(gold_labels, pred_labels, ignore_verb_label=True)
                 arg_excess, arg_missed, arg_match = utils._add_to_eval_dicts(eval_metrics, arg_excess, arg_missed, arg_match)
                 tot_excess += len(arg_excess)
                 tot_missed += len(arg_missed)
