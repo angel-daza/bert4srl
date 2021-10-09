@@ -1,4 +1,4 @@
-from pre_processing.CoNLL_Annotations import *
+from CoNLL_Annotations import *
 import json, io, argparse
 
 
