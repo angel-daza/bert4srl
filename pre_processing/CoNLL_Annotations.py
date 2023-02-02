@@ -1,4 +1,5 @@
 from collections import defaultdict
+from typing import List
 
 # CoNLL-U Format - https://universaldependencies.org/format.html
 # Universal POS - https://universaldependencies.org/u/pos/index.html
@@ -37,38 +38,6 @@ def _convert_to_universal(postag, lemma, lang="EN"):
         return pos_dict.get(postag, postag)
 
 
-class ZAPToken():
-    def __init__(self, raw_line, word_ix):
-        info = raw_line.split()
-        self.info = info
-        self.id = int(info[0])
-        self.position = word_ix  # 0-based position in sentence
-        self.word = info[1]
-        self.lemma = info[2]
-        self.pos_tag = info[4]
-        self.head = info[6]
-        self.dep_tag = info[7]
-        self.is_pred = True if info[10].upper() == "Y" else False
-        if len(info) > 11:
-            self.pred_sense = info[11]
-            self.pred_sense_id = str(self.position) + "##" + self.pred_sense
-        else:
-            self.pred_sense = None
-            self.pred_sense_id = ""
-        if len(info) > 12:
-            self.labels = info[12:]
-        else:
-            self.labels = []
-
-    def get_info(self):
-        return [str(self.id), self.word, self.lemma, self.pos_tag, str(self.head), self.dep_tag,
-                self.is_pred, self.pred_sense] + self.labels
-
-    def get_conllU_line(self, separator="\t"):
-        info = self.get_info()
-        return separator.join(info)
-
-
 class CoNLLUP_Token():
     def __init__(self, raw_line, word_ix):
         info = raw_line.split()
@@ -105,59 +74,48 @@ class CoNLLUP_Token():
         info = self.get_info()
         return separator.join(info)
 
-    def get_conll09_line(self, delim="\t"):
-        is_pred_str = "Y" if self.is_pred else "_"
-        sense_str = self.pred_sense if self.is_pred else "_"
-        info = [self.id, self.word, self.lemma, self.lemma, self.pos_tag, self.pos_tag, "_", self.detail_tag,
-                self.head, self.head, self.dep_tag, self.dep_tag, is_pred_str, sense_str] + self.labels
-        return delim.join(info)
 
-
-class CoNLL09_Token():
+class EN_CoNLLUP_Token():
     def __init__(self, raw_line, word_ix):
+        # # 17	having	have	VERB	VBG	VerbForm=Ger	15	advcl	15:advcl:like	_	have.04	_	_	ARG2	V	_
         info = raw_line.split()
-        # print(info)
-        # # ['1', 'Frau', 'Frau', 'Frau', 'NN', 'NN', '_', 'nom|sg|fem', '5', '5', 'CJ', 'CJ', '_', '_', 'AM-DIS', '_']
         self.info = info
-        self.id = int(info[0]) # 1-based ID as in the CoNLL file
+        self.id = info[0] #int(info[0]) # 1-based ID as in the CoNLL file
         self.position = word_ix # 0-based position in sentence
         self.word = info[1]
         self.lemma = info[2]
+        self.pos_universal = info[3]
         self.pos_tag = info[4]
-        self.pos_universal = _convert_to_universal(self.pos_tag, self.lemma)
-        self.head = info[8]
-        self.dep_tag = info[10]
-        self.detail_tag = "_"
-        self.is_pred = True if info[12] == "Y" else False
+        self.detail_tag = info[5]
+        self.head = info[6]
+        self.dep_tag = info[7]
+        if len(info) > 10:
+            self.is_pred = True if info[10] != "_" else False
+        else:
+            self.is_pred = False
         if self.is_pred:
-            self.pred_sense = info[13].strip("[]")
+            self.pred_sense = info[10]
             self.pred_sense_id = str(self.position) + "##" + self.pred_sense
         else:
             self.pred_sense = None
             self.pred_sense_id = ""
-        if len(info) > 14:
-            self.labels = info[14:]
+        if len(info) > 11:
+            self.labels = info[11:]
         else:
             self.labels = []
 
-    def get_conllU_line(self):
-        # We want: 25 panic panic NN NN 22 22 OBJ OBJ _ Y panic.01 _ _ _ _ _ _ A1 _ _
-        universal_POS = [self.pos_universal]
-        conllUinfo = self.info[:3] + universal_POS + self.info[5:6] + self.info[8:12] + ["_"] + self.info[12:]
-        return " ".join(conllUinfo)
-
-    def get_conll09_line(self, delim="\t"):
-        # We want:
-        # 1 Frau Frau Frau NN NN _ nom|sg|fem 5 5 CJ CJ _ _ AM-DIS _
-        # 10	fall	fall	fall	VB	VB	_	_	8	8	VC	VC	Y	fall.01	_	_	_	_	_
+    def get_info(self):
         is_pred_str = "Y" if self.is_pred else "_"
-        sense_str = self.pred_sense if self.is_pred else "_"
-        info = [self.id, self.word, self.lemma, self.lemma, self.pos_tag, self.pos_tag, "_", self.detail_tag,
-                self.head, self.head, self.dep_tag, self.dep_tag, is_pred_str, sense_str] + self.labels
-        return delim.join(info)
+        pred_sense_str = self.pred_sense if self.pred_sense else "_"
+        return [str(self.id), self.word, self.lemma, self.pos_universal, self.pos_tag, self.detail_tag,
+                str(self.head), self.dep_tag, is_pred_str, pred_sense_str] + self.labels
+
+    def get_conllU_line(self, separator="\t"):
+        info = self.get_info()
+        return separator.join(info)
 
 
-class ArgumentHead(): # Used in CoNLL-09 Annotations
+class ArgumentHead():
     def __init__(self, position, tag, word, predicate_id, parent_pred):
         self.position = position
         self.tag = tag
@@ -174,9 +132,9 @@ class ArgumentHead(): # Used in CoNLL-09 Annotations
 
 class AnnotatedSentence():
     def __init__(self):
-        self.tokens = []
-        self.only_senses = []
-        self.predicates = []
+        self.tokens: List[CoNLLUP_Token] = []
+        self.only_senses: List[str] = []
+        self.predicates: List[str] = []
         self.argument_structure = {}
         self.BIO_sequences = {}
         self.predicates_global_seq = []
@@ -184,7 +142,7 @@ class AnnotatedSentence():
         self.predicate_indices = []
         self.nominal_predicates = []
 
-    def _make_head_spans(self, pred_arg, include_nominals):
+    def _make_head_spans(self, pred_arg):
         global_pred_seq = ["O"] * len(self.tokens)
         pred2ix = []
         for tok in self.tokens:
@@ -204,27 +162,19 @@ class AnnotatedSentence():
                 for arg_head in args:
                     BIO_seq[arg_head.position] = "B-" + arg_head.tag
                 self.BIO_sequences[(tok_pos, pred_sense)] = BIO_seq
-            elif include_nominals:
-                BIO_seq[tok_pos] = "B-N-V"
-                for arg_head in args:
-                    if arg_head.position != tok_pos:
-                        BIO_seq[arg_head.position] = "B-" + arg_head.tag
-                    else:
-                        BIO_seq[arg_head.position] = "B-" + arg_head.tag + "-N-V"
-                self.BIO_sequences[(tok_pos, pred_sense)] = BIO_seq
         self.predicates_global_seq = global_pred_seq # Just one seq indicating for all predicates inside the sentence
         self.argument_structure = pred_arg
 
-    def annotate_pred_arg_struct(self, include_nominals):
+    def annotate_pred_arg_struct(self):
         self.predicates_global_seq = ["O"]*len(self.tokens)
         my_preds = self.predicates
         pred_arg = {my_preds[pred_ix]: [] for pred_ix in range(len(my_preds))}
         if len(my_preds) == 0: return None
-        if isinstance(self.tokens[0], CoNLL09_Token) or isinstance(self.tokens[0], CoNLLUP_Token) or isinstance(self.tokens[0], ZAPToken):
+        if isinstance(self.tokens[0], CoNLLUP_Token) or isinstance(self.tokens[0], EN_CoNLLUP_Token):
             for tok in self.tokens:
                 for pred_ix, lbl in enumerate(tok.labels):
                     if lbl != "_": pred_arg[my_preds[pred_ix]].append(ArgumentHead(tok.position, lbl, tok.word, pred_ix, self.predicates[pred_ix]))
-            self._make_head_spans(pred_arg, include_nominals)
+            self._make_head_spans(pred_arg)
         else:
             raise Exception("The Pred-Arg Structure Annotation is not Defined for this Kind of Token!")
 
@@ -241,7 +191,7 @@ class AnnotatedSentence():
         return s
 
 
-def get_annotation(raw_lines, token_class, include_nominals):
+def get_annotation(raw_lines, token_class):
     ann = AnnotatedSentence()
     # Annotate the predicates and senses
     real_index = 0
@@ -255,11 +205,11 @@ def get_annotation(raw_lines, token_class, include_nominals):
                     ann.only_senses.append(tok.pred_sense)
             real_index += 1
     # Annotate the arguments of the corresponding predicates
-    ann.annotate_pred_arg_struct(include_nominals=include_nominals)
+    ann.annotate_pred_arg_struct()
     return ann
 
 
-def read_conll(filename, conll_token, include_nominals):
+def read_conll(filename: str, conll_token: CoNLLUP_Token) -> List[AnnotatedSentence]:
     f = open(filename)
     n_sents = 0
     annotated_sentences, buffer_lst = [], []
@@ -268,12 +218,12 @@ def read_conll(filename, conll_token, include_nominals):
         if len(line) > 5 and len(line.split()) > 0:
             buffer_lst.append(line)
         else:
-            ann = get_annotation(buffer_lst, conll_token, include_nominals)
+            ann = get_annotation(buffer_lst, conll_token)
             n_sents += 1
             buffer_lst = []
             annotated_sentences.append(ann)
 
     if len(buffer_lst) > 0:
-        annotated_sentences.append(get_annotation(buffer_lst, conll_token, include_nominals))
+        annotated_sentences.append(get_annotation(buffer_lst, conll_token))
     print("Read {} Sentences!".format(n_sents))
     return annotated_sentences

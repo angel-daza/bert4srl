@@ -1,7 +1,7 @@
 from collections import defaultdict
 import torch
 import numpy as np
-import utils, argparse
+import utils_srl, argparse
 from transformers import BertTokenizer
 from transformers import BertForTokenClassification
 from torch.utils.data import TensorDataset, DataLoader, SequentialSampler
@@ -10,7 +10,7 @@ from torch.utils.data import TensorDataset, DataLoader, SequentialSampler
 if __name__ == "__main__":
     """
     RUN EXAMPLE:
-        python predict.py -m saved_models/TEST_BERT --epoch 1 --test_path data/Trial_EN.jsonl
+        python predict.py -m saved_models/TRIAL_BERT_NER --epoch 10 --test_path data/spanish.mini.jsonl
     """
 
     confusion_dict = defaultdict(list)
@@ -34,19 +34,19 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    EVALUATE_PREDICATES = utils.get_bool_value(args.eval_preds)
-    device, USE_CUDA = utils.get_torch_device()
-    file_has_gold = utils.get_bool_value(args.gold_labels)
+    EVALUATE_PREDICATES = utils_srl.get_bool_value(args.eval_preds)
+    device, USE_CUDA = utils_srl.get_torch_device()
+    file_has_gold = utils_srl.get_bool_value(args.gold_labels)
     SEQ_MAX_LEN = int(args.seq_max_len)
     BATCH_SIZE = int(args.batch_size)
 
     # Load Saved Model
-    model, tokenizer = utils.load_model(BertForTokenClassification, BertTokenizer, f"{args.model_dir}/EPOCH_{args.epoch}")
-    label2index = utils.load_label_dict(f"{args.model_dir}/label2index.json")
+    model, tokenizer = utils_srl.load_model(BertForTokenClassification, BertTokenizer, f"{args.model_dir}/EPOCH_{args.epoch}")
+    label2index = utils_srl.load_label_dict(f"{args.model_dir}/label2index.json")
     index2label = {v:k.strip("B-") for k,v in label2index.items()}
 
     # Load File for Predictions
-    _, prediction_inputs, prediction_masks, gold_labels, seq_lens, gold_predicates = utils.load_srl_dataset(args.test_path, tokenizer,
+    _, prediction_inputs, prediction_masks, gold_labels, seq_lens, gold_predicates = utils_srl.load_srl_dataset(args.test_path, tokenizer,
                                                                                                             include_labels=True,
                                                                                                             max_len=SEQ_MAX_LEN,
                                                                                                             label2index=label2index)
@@ -98,8 +98,8 @@ if __name__ == "__main__":
             predictions += pred_labels[:len(gold_labels)]
             true_labels += gold_labels
             # We have to evaluate ONLY the labels that belong to a Start WordPiece (not contain "##")
-            eval_metrics = utils.evaluate_tagset(gold_labels, pred_labels, ignore_verb_label=EVALUATE_PREDICATES)
-            arg_excess, arg_missed, arg_match = utils._add_to_eval_dicts(eval_metrics, arg_excess, arg_missed, arg_match)
+            eval_metrics = utils_srl.evaluate_tagset(gold_labels, pred_labels, ignore_verb_label=EVALUATE_PREDICATES)
+            arg_excess, arg_missed, arg_match = utils_srl._add_to_eval_dicts(eval_metrics, arg_excess, arg_missed, arg_match)
 
             for j, gold in enumerate(gold_labels):
                 # if "##" not in text[j] and gold not in ["X"]:
@@ -109,4 +109,4 @@ if __name__ == "__main__":
 
     # Overall Metrics
     metrics_file = f"{args.model_dir}/F1_Results_{args.lang}_{args.epoch}.txt"
-    utils.get_overall_metrics(arg_excess, arg_missed, arg_match, save_to_file=metrics_file, print_metrics=True)
+    utils_srl.get_overall_metrics(arg_excess, arg_missed, arg_match, save_to_file=metrics_file, print_metrics=True)
