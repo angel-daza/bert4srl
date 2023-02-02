@@ -21,7 +21,7 @@ def get_bool_value(str_bool):
         return False
 
 
-def get_torch_device(verbose=True):
+def get_torch_device(device_index=0, verbose=True):
     use_cuda = False
     if torch.cuda.is_available():
         # Tell PyTorch to use the GPU.
@@ -29,7 +29,7 @@ def get_torch_device(verbose=True):
         use_cuda = True
         if verbose:
             print('There are %d GPU(s) available.' % torch.cuda.device_count())
-            print('We will use the GPU:', torch.cuda.get_device_name(0))
+            print('We will use the GPU:', torch.cuda.get_device_name(device_index))
     else:
         if verbose: print('No GPU available, using the CPU instead.')
         device = torch.device("cpu")

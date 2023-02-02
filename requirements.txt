@@ -1,4 +1,6 @@
-transformers==4.17.0
 keras==2.8.0
+seqeval==1.2.2
+tabulate==0.8.9
 tensorflow==2.8.4
-seqeval
+torch==1.11.0
+transformers==4.17.0
