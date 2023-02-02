@@ -22,8 +22,11 @@ if __name__ == "__main__":
     
     RUN EXAMPLE:
     
-        python3 finetune_bert.py --train_path data/spanish.mini.jsonl --dev_path data/spanish.mini.jsonl --save_model_dir saved_models/TRIAL_BERT_NER \
+        python3 finetune_bert.py --train_path data/spanish.mini.jsonl --dev_path data/spanish.mini.jsonl --save_model_dir saved_models/TRIAL_BERT_SRL \
         --epochs 1 --batch_size 8 --info_every 10
+
+        python3 finetune_bert.py --train_path data/en_ewt-up-train.jsonl --dev_path data/en_ewt-up-dev.jsonl --save_model_dir saved_models/MBERT_SRL \
+        --epochs 10 --batch_size 16 --info_every 100 --gpu 1
 
     """
 
