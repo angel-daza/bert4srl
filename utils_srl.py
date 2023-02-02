@@ -36,7 +36,7 @@ def get_torch_device(device_index=0, verbose=True):
     return device, use_cuda
 
 
-device, USE_CUDA = get_torch_device(1, verbose=False)
+device, USE_CUDA = get_torch_device(verbose=False)
 LongTensor = torch.cuda.LongTensor if USE_CUDA else torch.LongTensor
 
 
