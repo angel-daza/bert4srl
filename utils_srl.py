@@ -154,16 +154,6 @@ def get_metrics(false_pos, false_neg, true_pos):
     return precision*100, recall*100, F1*100
 
 
-def _add_to_eval_dicts(eval_metrics, arg_excess, arg_missed, arg_match):
-    for arg in eval_metrics["excess"]:
-        arg_excess[arg] += 1
-    for arg in eval_metrics["missed"]:
-        arg_missed[arg] += 1
-    for arg in eval_metrics["match"]:
-        arg_match[arg] += 1
-    return arg_excess, arg_missed, arg_match
-
-
 def evaluate_tagset(gold_labels, pred_labels, ignore_verb_label):
     label_filter = ["X", "O", "B-V"] if ignore_verb_label else ["X", "O"]
     gld = set([f"{i}_{y.strip('B-')}" for i, y in enumerate(gold_labels) if y not in label_filter])
@@ -296,10 +286,10 @@ def evaluate_bert_model(eval_dataloader: DataLoader, eval_batch_size: int, model
         batch = tuple(t.to(device) for t in batch)
 
         # Unpack the inputs from our dataloader
-        b_input_ids, b_input_mask, b_labels, b_len = batch
+        b_input_ids, b_input_mask, b_labels, b_preds = batch
 
         with torch.no_grad():
-            outputs = model(b_input_ids, attention_mask=b_input_mask, labels=b_labels)
+            outputs = model(b_input_ids, token_type_ids=b_preds, attention_mask=b_input_mask, labels=b_labels)
             tmp_eval_loss, logits = outputs[:2]
             eval_loss += tmp_eval_loss.item()
         nb_eval_steps += 1

@@ -50,7 +50,7 @@ if __name__ == "__main__":
     parser.add_argument('-bs', '--batch_size', type=int, default=8)
     parser.add_argument('-inf', '--info_every', type=int, default=100)
     parser.add_argument('-mx', '--max_len', type=int, default=256)
-    parser.add_argument('-lr', '--learning_rate', type=float, default=2e-5)
+    parser.add_argument('-lr', '--learning_rate', type=float, default=1e-4)
     parser.add_argument('-gr', '--gradient_clip', type=float, default=1.0)
 
     args = parser.parse_args()
@@ -178,11 +178,12 @@ if __name__ == "__main__":
             b_input_ids = batch[0].to(device)
             b_input_mask = batch[1].to(device)
             b_labels = batch[2].to(device)
+            b_predicates = batch[3].to(device)
 
             model.zero_grad()
 
             # Perform a forward pass (evaluate the model on this training batch).
-            outputs = model(b_input_ids, attention_mask=b_input_mask, labels=b_labels)
+            outputs = model(b_input_ids, token_type_ids=b_predicates, attention_mask=b_input_mask, labels=b_labels)
             loss = outputs[0]
             total_loss += loss.item()
 
