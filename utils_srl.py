@@ -169,6 +169,16 @@ def evaluate_tagset(gold_labels, pred_labels, ignore_verb_label):
     return eval_obj
 
 
+def add_to_eval_dicts(eval_metrics, arg_excess, arg_missed, arg_match):
+    for arg in eval_metrics["excess"]:
+        arg_excess[arg] += 1
+    for arg in eval_metrics["missed"]:
+        arg_missed[arg] += 1
+    for arg in eval_metrics["match"]:
+        arg_match[arg] += 1
+    return arg_excess, arg_missed, arg_match
+
+
 def format_time(elapsed):
     '''
     Takes a time in seconds and returns a string hh:mm:ss

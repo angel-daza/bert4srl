@@ -10,7 +10,7 @@ from torch.utils.data import TensorDataset, DataLoader, SequentialSampler
 if __name__ == "__main__":
     """
     RUN EXAMPLE:
-        python predict.py -m saved_models/TRIAL_BERT_NER --epoch 10 --test_path data/spanish.mini.jsonl
+        python3 predict.py -m saved_models/EN_BERT_SRL --epoch 10 --test_path data/spanish.mini.jsonl
     """
 
     confusion_dict = defaultdict(list)
@@ -99,7 +99,7 @@ if __name__ == "__main__":
             true_labels += gold_labels
             # We have to evaluate ONLY the labels that belong to a Start WordPiece (not contain "##")
             eval_metrics = utils_srl.evaluate_tagset(gold_labels, pred_labels, ignore_verb_label=EVALUATE_PREDICATES)
-            arg_excess, arg_missed, arg_match = utils_srl._add_to_eval_dicts(eval_metrics, arg_excess, arg_missed, arg_match)
+            arg_excess, arg_missed, arg_match = utils_srl.add_to_eval_dicts(eval_metrics, arg_excess, arg_missed, arg_match)
 
             for j, gold in enumerate(gold_labels):
                 # if "##" not in text[j] and gold not in ["X"]:

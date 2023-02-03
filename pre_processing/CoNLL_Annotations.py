@@ -39,11 +39,11 @@ def _convert_to_universal(postag, lemma, lang="EN"):
 
 
 class CoNLLUP_Token():
-    def __init__(self, raw_line, word_ix):
-        info = raw_line.split()
+    def __init__(self, info, word_ix):
+        # info = raw_line.split()
         # # ['1', 'Kleszczele', 'Kleszczele', 'PROPN', 'NE', 'Case=Nom|Number=Sing', '12', 'nsubj', '_', '_', 'A1']
         self.info = info
-        self.id = info[0] #int(info[0]) # 1-based ID as in the CoNLL file
+        self.id = int(info[0]) # 1-based ID as in the CoNLL file
         self.position = word_ix # 0-based position in sentence
         self.word = info[1]
         self.lemma = info[2]
@@ -76,11 +76,11 @@ class CoNLLUP_Token():
 
 
 class EN_CoNLLUP_Token():
-    def __init__(self, raw_line, word_ix):
+    def __init__(self, info, word_ix):
         # # 17	having	have	VERB	VBG	VerbForm=Ger	15	advcl	15:advcl:like	_	have.04	_	_	ARG2	V	_
-        info = raw_line.split()
+        # info = raw_line.split()
         self.info = info
-        self.id = info[0] #int(info[0]) # 1-based ID as in the CoNLL file
+        self.id = int(info[0]) # 1-based ID as in the CoNLL file
         self.position = word_ix # 0-based position in sentence
         self.word = info[1]
         self.lemma = info[2]
@@ -196,14 +196,15 @@ def get_annotation(raw_lines, token_class):
     # Annotate the predicates and senses
     real_index = 0
     for i, line in enumerate(raw_lines):
-        if len(line.split()) > 8:
-            tok = token_class(line, real_index)
-            if tok:
+        elements = line.split()
+        if len(elements) > 8:
+            if '.' not in elements[0] and '-' not in elements[0]:
+                tok = token_class(elements, real_index)
                 ann.tokens.append(tok)
                 if tok.is_pred:
                     ann.predicates.append((tok.position, tok.word, tok.pred_sense, tok.pos_tag))
                     ann.only_senses.append(tok.pred_sense)
-            real_index += 1
+                real_index += 1
     # Annotate the arguments of the corresponding predicates
     ann.annotate_pred_arg_struct()
     return ann
@@ -225,5 +226,6 @@ def read_conll(filename: str, conll_token: CoNLLUP_Token) -> List[AnnotatedSente
 
     if len(buffer_lst) > 0:
         annotated_sentences.append(get_annotation(buffer_lst, conll_token))
+        n_sents += 1
     print("Read {} Sentences!".format(n_sents))
     return annotated_sentences
