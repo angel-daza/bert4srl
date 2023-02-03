@@ -120,7 +120,7 @@ if __name__ == "__main__":
     index2label = {v: k for k, v in train_label2index.items()}
 
     # Create the DataLoader for our training set.
-    train_data = TensorDataset(train_inputs, train_masks, train_labels)
+    train_data = TensorDataset(train_inputs, train_masks, train_labels, train_preds)
     train_sampler = RandomSampler(train_data)
     train_dataloader = DataLoader(train_data, sampler=train_sampler, batch_size=BATCH_SIZE)
 
@@ -131,7 +131,7 @@ if __name__ == "__main__":
                                                                                        include_labels=True,
                                                                                        label2index=train_label2index)
         # Create the DataLoader for our Development set.
-        dev_data = TensorDataset(dev_inputs, dev_masks, dev_labels, dev_lens)
+        dev_data = TensorDataset(dev_inputs, dev_masks, dev_labels, dev_preds)
         dev_sampler = RandomSampler(dev_data)
         dev_dataloader = DataLoader(dev_data, sampler=dev_sampler, batch_size=BATCH_SIZE)
 
