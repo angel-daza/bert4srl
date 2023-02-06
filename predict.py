@@ -1,6 +1,7 @@
 from collections import defaultdict
 import logging, argparse, torch, sys
 import utils_srl
+from torch.nn import CrossEntropyLoss
 from torch.utils.data import TensorDataset, DataLoader, SequentialSampler
 from transformers import pipeline
 from transformers import BertTokenizer, AutoModelForTokenClassification
@@ -8,7 +9,7 @@ from transformers import BertTokenizer, AutoModelForTokenClassification
 if __name__ == "__main__":
     """
     RUN EXAMPLE:
-        python3 predict.py -m saved_models/TRIAL_BERT_NER/ --epoch 10 --test_path data/spanish.mini.jsonl --gold_labels
+        python3 predict.py -m saved_models/EN_MBERT_SRL/ --epoch 2 --test_path data/en_ewt-up-dev.jsonl --gold_labels
     """
 
     confusion_dict = defaultdict(list)
@@ -37,6 +38,7 @@ if __name__ == "__main__":
     file_has_gold = utils_srl.get_bool_value(args.gold_labels)
     SEQ_MAX_LEN = int(args.seq_max_len)
     BATCH_SIZE = int(args.batch_size)
+    PAD_TOKEN_LABEL_ID = CrossEntropyLoss().ignore_index # -100
     INPUTS_PATH=f"{args.model_dir}/EPOCH_{args.epoch}/model_inputs.txt"
     OUTPUTS_PATH=f"{args.model_dir}/EPOCH_{args.epoch}/model_outputs.txt"
 
