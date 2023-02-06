@@ -14,8 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 
-def get_bool_value(str_bool: str) -> bool:
-    if isinstance(str_bool, bool): return str_bool 
+def get_bool_value(str_bool):
     if str_bool.upper() == "TRUE" or str_bool.upper() == "T":
         return True
     else:
@@ -92,15 +91,6 @@ def expand_to_wordpieces(original_sentence: List[str], original_labels: List[str
     return word_pieces, labels, head_tokens
 
 
-def get_sentences(filepath):
-    sentences = []
-    with open(filepath) as f:
-        for i, line in enumerate(f.readlines()):
-            obj = json.loads(line)
-            sentences.append(" ".join(obj["seq_words"]))
-    return sentences
-
-
 def get_data(filepath, tokenizer, include_labels):
     sentences, verb_indicators, all_labels = [], [], []
     with open(filepath) as f:
@@ -121,6 +111,7 @@ def get_data(filepath, tokenizer, include_labels):
                 all_labels.append(labelset)
 
     return sentences, verb_indicators, all_labels
+
 
 def load_srl_dataset(filepath, tokenizer, max_len, include_labels, label2index):
     sentences, verb_indicators, labels = get_data(filepath, tokenizer, include_labels)
@@ -329,11 +320,9 @@ def evaluate_bert_model(eval_dataloader: DataLoader, eval_batch_size: int, model
     full_word_preds = []
 
     logger.info(label_map)
-    not_include_ids = [label_map[l] for l in ["[PAD]", "[UNK]", "B-V", "X"]]
-    not_include_ids.append(pad_token_label_id)
     for seq_ix in range(gold_label_ids.shape[0]):
         for j in range(gold_label_ids.shape[1]):
-            if gold_label_ids[seq_ix, j] not in not_include_ids:
+            if gold_label_ids[seq_ix, j] != pad_token_label_id:
                 gold_label_list[seq_ix].append(label_map[gold_label_ids[seq_ix][j]])
                 pred_label_list[seq_ix].append(label_map[preds[seq_ix][j]])
 
