@@ -41,6 +41,10 @@ if __name__ == "__main__":
     PAD_TOKEN_LABEL_ID = CrossEntropyLoss().ignore_index # -100
     INPUTS_PATH=f"{args.model_dir}/EPOCH_{args.epoch}/model_inputs.txt"
     OUTPUTS_PATH=f"{args.model_dir}/EPOCH_{args.epoch}/model_outputs.txt"
+    if not USE_CUDA: 
+        GPU_IX = -1
+    else:
+        GPU_IX = device
 
     # Logging...
     console_hdlr = logging.StreamHandler(sys.stdout)
@@ -79,7 +83,6 @@ if __name__ == "__main__":
         test_data = utils_srl.get_sentences(args.test_path)
         # https://huggingface.co/transformers/main_classes/pipelines.html#transformers.TokenClassificationPipeline
         logging.info('Predicting labels for {:,} test sentences...'.format(len(test_data)))
-        if not USE_CUDA: GPU_IX = -1
         nlp = pipeline('token-classification', model=model, tokenizer=tokenizer, device=GPU_IX)
         nlp.ignore_labels = []
         with open(OUTPUTS_PATH, "w") as fout:
