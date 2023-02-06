@@ -27,9 +27,7 @@ def make_json_files(file_props, append_in_file=False):
                 seq_obj["seq_words"] = my_sent
                 seq_obj["BIO"] = seq
                 seq_obj["pred_sense"] = sent.predicates[ix]
-                if "B-V" not in seq: no_verb += 1
                 seq_obj["src_lang"] = file_props["lang"]
-                seq_obj["tgt_lang"] = "<" + file_props["lang"][1:-1] + "-SRL>"
                 json_file.write(json.dumps(seq_obj) + "\n")
                 written_in_file += 1
         else:
@@ -39,7 +37,6 @@ def make_json_files(file_props, append_in_file=False):
             seq_obj["BIO"] = generic_bio
             seq_obj["pred_sense"] = (-1, "-", "<NO-PRED>", "-")
             seq_obj["src_lang"] = file_props["lang"]
-            seq_obj["tgt_lang"] = "<" + file_props["lang"][1:-1] + "-SRL>"
             json_file.write(json.dumps(seq_obj) + "\n")
             written_in_file += 1
 

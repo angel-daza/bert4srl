@@ -14,7 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 
-def get_bool_value(str_bool):
+def get_bool_value(str_bool: str) -> bool:
+    if isinstance(str_bool, bool): return str_bool 
     if str_bool.upper() == "TRUE" or str_bool.upper() == "T":
         return True
     else:
@@ -91,6 +92,15 @@ def expand_to_wordpieces(original_sentence: List[str], original_labels: List[str
     return word_pieces, labels, head_tokens
 
 
+def get_sentences(filepath):
+    sentences = []
+    with open(filepath) as f:
+        for i, line in enumerate(f.readlines()):
+            obj = json.loads(line)
+            sentences.append(" ".join(obj["seq_words"]))
+    return sentences
+
+
 def get_data(filepath, tokenizer, include_labels):
     sentences, verb_indicators, all_labels = [], [], []
     with open(filepath) as f:
@@ -111,7 +121,6 @@ def get_data(filepath, tokenizer, include_labels):
                 all_labels.append(labelset)
 
     return sentences, verb_indicators, all_labels
-
 
 def load_srl_dataset(filepath, tokenizer, max_len, include_labels, label2index):
     sentences, verb_indicators, labels = get_data(filepath, tokenizer, include_labels)
