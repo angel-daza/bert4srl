@@ -44,7 +44,7 @@ if __name__ == "__main__":
     if not USE_CUDA: 
         GPU_IX = -1
     else:
-        GPU_IX = device
+        GPU_IX = 0
 
     # Logging...
     console_hdlr = logging.StreamHandler(sys.stdout)
