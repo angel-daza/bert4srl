@@ -329,9 +329,11 @@ def evaluate_bert_model(eval_dataloader: DataLoader, eval_batch_size: int, model
     full_word_preds = []
 
     logger.info(label_map)
+    not_include_ids = [label_map[l] for l in ["[PAD]", "[UNK]", "B-V", "X"]]
+    not_include_ids.append(pad_token_label_id)
     for seq_ix in range(gold_label_ids.shape[0]):
         for j in range(gold_label_ids.shape[1]):
-            if gold_label_ids[seq_ix, j] != pad_token_label_id:
+            if gold_label_ids[seq_ix, j] not in not_include_ids:
                 gold_label_list[seq_ix].append(label_map[gold_label_ids[seq_ix][j]])
                 pred_label_list[seq_ix].append(label_map[preds[seq_ix][j]])
 

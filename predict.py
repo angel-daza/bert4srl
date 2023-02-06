@@ -28,7 +28,7 @@ if __name__ == "__main__":
     parser.add_argument('-e', '--epoch', help="Epoch to Load model from", required=True)
     parser.add_argument('-g', '--gold_labels', action='store_true')
     parser.add_argument('-v', '--eval_preds', default="True", help="Include the label V in the F1 score computation")
-    parser.add_argument('-b', '--batch_size', default=16, help="For BEST results: same value as wen training the Model")
+    parser.add_argument('-b', '--batch_size', default=8, help="For BEST results: same value as wen training the Model")
     parser.add_argument('-mx', '--seq_max_len', default=256, help="BEST results: same value as when training the Model")
 
     args = parser.parse_args()
@@ -66,7 +66,7 @@ if __name__ == "__main__":
         
         results, preds_list = utils_srl.evaluate_bert_model(prediction_dataloader, BATCH_SIZE, model, tokenizer, index2label, 
                                                             PAD_TOKEN_LABEL_ID, full_report=True, prefix="Test Set")
-        logging.info("  Test Loss: {0:.2f}".format(results['loss']))
+        logging.info("  Test Loss: {}".format(results['loss']))
         logging.info("  Precision: {0:.2f} || Recall: {1:.2f} || F1: {2:.2f}".format(results['precision']*100, results['recall']*100, results['f1']*100))
 
         with open(OUTPUTS_PATH, "w") as fout:
