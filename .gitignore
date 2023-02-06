@@ -1,5 +1,8 @@
+.idea/
 saved_models/*
 __pychache__/
 *.pyc
 classic_approach.py
 *.conllu
+utils_srl.py
+pre_processing/*

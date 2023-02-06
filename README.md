@@ -26,22 +26,21 @@ of [LDC Catalog](https://catalog.ldc.upenn.edu/LDC2012T04)
 
 ```
 python pre_processing/conll2json.py \
-	--source_file data/CoNLL2009-ST-English-trial.txt \
-	--output_file data/Trial_EN.jsonl \
-	--src_lang "<EN>" \
-	--token_type CoNLL09_Token
+            --source_file data/en_ewt-up-dev.conllu \
+            --output_file data/en_ewt-up-dev.jsonl \
+            --src_lang "<EN>" \
+            --token_type EN_CoNLLUP_Token
 ```
 
 #### Train a Model
 
 ```
-python train.py --train_path data/Trial_EN.jsonl \
-	--dev_path data/Trial_EN.jsonl \
-	--save_model_dir saved_models/TRIAL_BERT
+python3 finetune_bert.py --train_path data/en_ewt-up-train.jsonl --dev_path data/en_ewt-up-dev.jsonl --save_model_dir saved_models/MBERT_SRL \
+        --epochs 10 --batch_size 16 --info_every 100 --bert_model bert-base-multilingual-cased
 ```
 
 #### Make Predictions
 
 ```
-python predict.py -m saved_models/TRIAL_BERT --epoch 1 --test_path data/Trial_EN.jsonl
+python3 predict.py -m saved_models/EN_BERT_SRL --epoch 10 --test_path data/en_ewt-up-test.jsonl
 ```
