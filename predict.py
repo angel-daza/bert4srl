@@ -64,7 +64,8 @@ if __name__ == "__main__":
 
         logging.info('Predicting labels for {:,} test sentences...'.format(len(prediction_inputs)))
         
-        results, preds_list = utils_srl.evaluate_bert_model(prediction_dataloader, BATCH_SIZE, model, tokenizer, index2label, full_report=True, prefix="Test Set")
+        results, preds_list = utils_srl.evaluate_bert_model(prediction_dataloader, BATCH_SIZE, model, tokenizer, index2label, 
+                                                            PAD_TOKEN_LABEL_ID, full_report=True, prefix="Test Set")
         logging.info("  Test Loss: {0:.2f}".format(results['loss']))
         logging.info("  Precision: {0:.2f} || Recall: {1:.2f} || F1: {2:.2f}".format(results['precision']*100, results['recall']*100, results['f1']*100))
 
