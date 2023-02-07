@@ -4,20 +4,13 @@ It is mostly meant to show a simple way of finetuning BERT using SRL as an examp
 
 ## Requirements
 
-* Python version >= 3.6.6
-* Hugging-Face Transformers >= 2.2.0
+* Python version >= 3.8
+* Hugging-Face Transformers >= 4.17.0
 
 
 ## Data
 
-This model works with any dataset in CoNLL09 Format (see example at data/trial.conll). 
-
-We include the Trial Data for you to be able to test the code... 
-however, note that no matter how long you train with this data, 
-the output will be rubbish. You can create your own dataset following
-the CoNLL format or, to reproduce the results on the SRL Shared Task, 
-you should buy access to the CoNLL-09 Part 2 dataset which is part 
-of [LDC Catalog](https://catalog.ldc.upenn.edu/LDC2012T04)
+This model was tested with [Universal Proposition Banks](https://github.com/UniversalPropositions/UP-1.0) dataset. Further compatibility for CoNLL-05, CoNLL-09, CoNLL-12 (all of them are licensed datasets) can be easily added by creating the appropriate objects for data pre_processing.
 
 
 ### Usage
