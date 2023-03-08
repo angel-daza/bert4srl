@@ -157,11 +157,11 @@ class AnnotatedSentence():
         # Create Argument-Head BIO sequences
         for (tok_pos, word, pred_sense, tok_tag), args in pred_arg.items():
             BIO_seq = ["O"] * len(self.tokens)
-            if "V" in tok_tag:
-                BIO_seq[tok_pos] = "B-V"
-                for arg_head in args:
-                    BIO_seq[arg_head.position] = "B-" + arg_head.tag
-                self.BIO_sequences[(tok_pos, pred_sense)] = BIO_seq
+            # if "V" in tok_tag:
+            BIO_seq[tok_pos] = "B-V"
+            for arg_head in args:
+                BIO_seq[arg_head.position] = "B-" + arg_head.tag
+            self.BIO_sequences[(tok_pos, pred_sense)] = BIO_seq
         self.predicates_global_seq = global_pred_seq # Just one seq indicating for all predicates inside the sentence
         self.argument_structure = pred_arg
 

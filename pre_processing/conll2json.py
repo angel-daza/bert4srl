@@ -40,7 +40,7 @@ def make_json_files(file_props, append_in_file=False):
             json_file.write(json.dumps(seq_obj) + "\n")
             written_in_file += 1
 
-    print("IN: {} --> OUT: {}\nFound {} sentences in CoNLL --> Wrote {} sentences in JSON".format(file_props["in"],
+    print("IN: {} --> OUT: {}\nFound {} sentences in CoNLL --> Wrote {} propositions in JSON".format(file_props["in"],
                                                                                                   file_props["out"],
                                                                                                   len(sentences),
                                                                                                   written_in_file))
@@ -56,8 +56,8 @@ if __name__ == "__main__":
             --src_lang "<ES>"
         
         python pre_processing/conll2json.py \
-            --source_file data/en_ewt-up-dev.conllu \
-            --output_file data/en_ewt-up-dev.jsonl \
+            --source_file data/en_ewt-up-train.conllu \
+            --output_file data/en_ewt-up-train.jsonl \
             --src_lang "<EN>" \
             --token_type EN_CoNLLUP_Token
     """

@@ -1,6 +1,8 @@
 .idea/
+.DS_Store
 saved_models/*
 __pychache__/
 *.pyc
 classic_approach.py
 *.conllu
+english.*
