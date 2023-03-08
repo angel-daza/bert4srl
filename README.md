@@ -4,20 +4,13 @@ It is mostly meant to show a simple way of finetuning BERT using SRL as an examp
 
 ## Requirements
 
-* Python version >= 3.6.6
-* Hugging-Face Transformers >= 2.2.0
+* Python version >= 3.8
+* Hugging-Face Transformers >= 4.17.0
 
 
 ## Data
 
-This model works with any dataset in CoNLL09 Format (see example at data/trial.conll). 
-
-We include the Trial Data for you to be able to test the code... 
-however, note that no matter how long you train with this data, 
-the output will be rubbish. You can create your own dataset following
-the CoNLL format or, to reproduce the results on the SRL Shared Task, 
-you should buy access to the CoNLL-09 Part 2 dataset which is part 
-of [LDC Catalog](https://catalog.ldc.upenn.edu/LDC2012T04)
+This model was tested with [Universal Proposition Banks](https://github.com/UniversalPropositions/UP-1.0) dataset. Further compatibility for CoNLL-05, CoNLL-09, CoNLL-12 (all of them are licensed datasets) can be easily added by creating the appropriate objects for data pre_processing.
 
 
 ### Usage
@@ -26,22 +19,21 @@ of [LDC Catalog](https://catalog.ldc.upenn.edu/LDC2012T04)
 
 ```
 python pre_processing/conll2json.py \
-	--source_file data/CoNLL2009-ST-English-trial.txt \
-	--output_file data/Trial_EN.jsonl \
-	--src_lang "<EN>" \
-	--token_type CoNLL09_Token
+            --source_file data/en_ewt-up-dev.conllu \
+            --output_file data/en_ewt-up-dev.jsonl \
+            --src_lang "<EN>" \
+            --token_type EN_CoNLLUP_Token
 ```
 
 #### Train a Model
 
 ```
-python train.py --train_path data/Trial_EN.jsonl \
-	--dev_path data/Trial_EN.jsonl \
-	--save_model_dir saved_models/TRIAL_BERT
+python3 finetune_bert.py --train_path data/en_ewt-up-train.jsonl --dev_path data/en_ewt-up-dev.jsonl --save_model_dir saved_models/MBERT_SRL \
+        --epochs 10 --batch_size 16 --info_every 100 --bert_model bert-base-multilingual-cased
 ```
 
 #### Make Predictions
 
 ```
-python predict.py -m saved_models/TRIAL_BERT --epoch 1 --test_path data/Trial_EN.jsonl
+python3 predict.py -m saved_models/EN_BERT_SRL --epoch 10 --test_path data/en_ewt-up-test.jsonl
 ```
